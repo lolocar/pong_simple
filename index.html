@@ -168,8 +168,8 @@
   <div id="info">
     <span>ESC to pause</span>
     <span>SPACE to launch ball</span>
-    <span>1P: ↑/↓ (+ for fast)</span>
-    <span>2P: ↑/↓ (+) + W/S (F)</span>
+    <span>1P: ↑/↓  (+ fast / - slow)</span>
+    <span>2P: ↑/↓ (+) + W/S (F fast / R slow)</span>
   </div>
 
   <script>
@@ -185,6 +185,7 @@
     const PADDLE_MARGIN = 20;
     const PADDLE_SPEED  = 6;
     const FAST_MULT     = 1.8;
+    const SLOW_MULT     = 0.4;
 
     // --- Colors (fire theme) ---
     const COL = {
@@ -258,11 +259,11 @@
     // --- Mode selection ---
     function updateHint() {
       if (gameMode === '1p') {
-        hintEl.textContent = '↑ / ↓ (+ fast) → left paddle';
+        hintEl.textContent = '↑ / ↓  |  + fast  |  - slow  → left paddle';
       } else if (controlsSwapped) {
-        hintEl.textContent = '↑ / ↓ (+ fast) → P1 (left)   |   W / S (+F fast) → P2 (right)';
+        hintEl.textContent = '↑ / ↓ (+ fast / - slow) → P1 (left)   |   W / S (F fast / R slow) → P2 (right)';
       } else {
-        hintEl.textContent = 'W / S (+F fast) → P1 (left)   |   ↑ / ↓ (+ fast) → P2 (right)';
+        hintEl.textContent = 'W / S (F fast / R slow) → P1 (left)   |   ↑ / ↓ (+ fast / - slow) → P2 (right)';
       }
     }
 
@@ -346,9 +347,13 @@
     document.addEventListener('keyup', (e) => { keysDown[e.key] = false; });
 
     // --- Keyboard paddle movement ---
-    function movePaddle(target, up, down, fastKey) {
+    function movePaddle(target, up, down, fastKey, slowKey) {
       const fast = keysDown[fastKey] && (keysDown[up] || keysDown[down]);
-      const spd  = fast ? PADDLE_SPEED * FAST_MULT : PADDLE_SPEED;
+      const slow = keysDown[slowKey] && (keysDown[up] || keysDown[down]);
+      let spd;
+      if (slow)    spd = PADDLE_SPEED * SLOW_MULT;
+      else if (fast) spd = PADDLE_SPEED * FAST_MULT;
+      else          spd = PADDLE_SPEED;
       if (keysDown[up])   target.y -= spd;
       if (keysDown[down]) target.y += spd;
       if (target.y < 0)              target.y = 0;
@@ -356,26 +361,27 @@
       return fast;
     }
 
-    // Normalize case for W/S/F
+    // Normalize case for W/S/F/R
     function normalizeKeys() {
       if (keysDown['W']) keysDown['w'] = true;
       if (keysDown['S']) keysDown['s'] = true;
       if (keysDown['F']) keysDown['f'] = true;
+      if (keysDown['R']) keysDown['r'] = true;
     }
 
     function updateKeyboardPaddles() {
       normalizeKeys();
       if (gameMode === '1p') {
-        const p1f = movePaddle(paddle, 'ArrowUp', 'ArrowDown', '+');
+        const p1f = movePaddle(paddle, 'ArrowUp', 'ArrowDown', '+', '-');
         if (p1f) fastGlowP1 = 8;
       } else if (!controlsSwapped) {
-        const p1f = movePaddle(paddle, 'w', 's', 'f');
-        const p2f = movePaddle(paddle2, 'ArrowUp', 'ArrowDown', '+');
+        const p1f = movePaddle(paddle, 'w', 's', 'f', 'r');
+        const p2f = movePaddle(paddle2, 'ArrowUp', 'ArrowDown', '+', '-');
         if (p1f) fastGlowP1 = 8;
         if (p2f) fastGlowP2 = 8;
       } else {
-        const p1f = movePaddle(paddle, 'ArrowUp', 'ArrowDown', '+');
-        const p2f = movePaddle(paddle2, 'w', 's', 'f');
+        const p1f = movePaddle(paddle, 'ArrowUp', 'ArrowDown', '+', '-');
+        const p2f = movePaddle(paddle2, 'w', 's', 'f', 'r');
         if (p1f) fastGlowP1 = 8;
         if (p2f) fastGlowP2 = 8;
       }
@@ -626,12 +632,12 @@
       ctx.font      = '11px Courier New';
       if (gameMode === '1p') {
         ctx.textAlign = 'left';
-        ctx.fillText('↑↓ +', 4, 16);
+        ctx.fillText('↑↓  +fast  -slow', 4, 16);
         ctx.textAlign = 'right';
         ctx.fillText('AI', W - 4, 16);
       } else {
-        const p1Input = controlsSwapped ? '↑↓+' : 'W/S+F';
-        const p2Input = controlsSwapped ? 'W/S+F' : '↑↓+';
+        const p1Input = controlsSwapped ? '↑↓  +fast -slow' : 'W/S  Ffast Rslow';
+        const p2Input = controlsSwapped ? 'W/S  Ffast Rslow' : '↑↓  +fast -slow';
         ctx.textAlign = 'left';
         ctx.fillText(p1Input, 4, 16);
         ctx.textAlign = 'right';
