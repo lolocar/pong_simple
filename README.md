@@ -15,6 +15,7 @@ Open `index.html` in your browser, select your game mode, and click **Start**.
 | Move up | `↑` (Arrow Up) |
 | Move down | `↓` (Arrow Down) |
 | Fast mode | Hold `+` while moving (Shift+=) |
+| Slow mode | Hold `-` while moving |
 
 ### 2 Players
 
@@ -23,6 +24,7 @@ Open `index.html` in your browser, select your game mode, and click **Start**.
 | Move up | `W` | `↑` |
 | Move down | `S` | `↓` |
 | Fast mode | Hold `F` | Hold `+` |
+| Slow mode | Hold `R` | Hold `-` |
 
 A **Swap Controls** toggle in the menu swaps the key bindings between players.
 
@@ -80,7 +82,7 @@ requestAnimationFrame(gameLoop)
 | `keysDown` | Object tracking currently held keys |
 | `hitTimer` | Frames remaining for hit flash effect |
 | `lastHitPaddle` | Which paddle was last hit (for correct flash rendering) |
-| `fastGlowP1` / `fastGlowP2` | Per-paddle fast mode glow timer |
+| `fastGlowP1` / `fastGlowP2` | Per-paddle fast mode glow timer (decremented each frame) |
 | `speed` | Current ball speed (increases during rallies) |
 
 ### Constants
@@ -97,6 +99,7 @@ requestAnimationFrame(gameLoop)
 | `AI_REACTION` | 0.08 | AI prediction weight (lower = slower reaction) |
 | `P2_SPEED` | 6 | Keyboard paddle movement speed |
 | `FAST_MULT` | 1.8 | Fast mode speed multiplier |
+| `SLOW_MULT` | 0.4 | Slow mode speed multiplier |
 
 ### Visual Effects
 
